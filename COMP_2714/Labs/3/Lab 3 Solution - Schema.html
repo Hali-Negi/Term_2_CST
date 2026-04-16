@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head></head><body style="color: rgb(32, 33, 34); font-family: undefined;"><h1>Relational Schema (Conceptual Types)</h1>
+<p><em>Based on the provided logical EERD</em></p>
+<hr>
+<h2>DEPARTMENT</h2>
+<p>DEPARTMENT (dep_code: string, dep_name: string, loc_code: string)</p>
+<p>PK = {dep_code}</p>
+<p>FKs = {loc_code → LOCATION.loc_code}</p>
+<p>Constraints = {dep_name NOT NULL}</p>
+<h2>LOCATION</h2>
+<p>LOCATION (loc_code: string, loc_building: string, loc_room: string)</p>
+<p>PK = {loc_code}</p>
+<h2>PROFESSOR</h2>
+<p>PROFESSOR (prof_num: integer, prof_fname: string, prof_lname: string, dep_code: string)</p>
+<p>PK = {prof_num}</p>
+<p>FKs = {dep_code → DEPARTMENT.dep_code}</p>
+<p>Constraints = {prof_fname NOT NULL, prof_lname NOT NULL}</p>
+<h2>STUDENT</h2>
+<p>STUDENT (stu_num: integer, stu_fname: string, stu_lname: string)</p>
+<p>PK = {stu_num}</p>
+<p>Constraints = {stu_fname NOT NULL, stu_lname NOT NULL}</p>
+<h2>TERM</h2>
+<p>TERM (term_code: string, term_semester: string, term_year: integer)</p>
+<p>PK = {term_code}</p>
+<p>Constraints = {term_semester NOT NULL, term_year NOT NULL}</p>
+<h2>COURSE</h2>
+<p>COURSE (crs_code: string, crs_title: string, crs_credits: integer, dep_code: string)</p>
+<p>PK = {crs_code}</p>
+<p>FKs = {dep_code → DEPARTMENT.dep_code}</p>
+<p>Constraints = {crs_title NOT NULL, crs_credits NOT NULL}</p>
+<h2>COURSE_OFFERING</h2>
+<p>COURSE_OFFERING (off_id: integer, crs_code: string, term_code: string, off_section: string, off_capacity: integer, off_start_time: time, off_end_time: time, off_notes: text, loc_code: string, prof_num: integer)</p>
+<p>PK = {off_id}</p>
+<p>FKs = {crs_code → COURSE.crs_code, term_code → TERM.term_code, loc_code → LOCATION.loc_code, prof_num → PROFESSOR.prof_num}<br>Constraints = {off_section NOT NULL, off_capacity NOT NULL, off_start_time NOT NULL, off_end_time NOT NULL, UNIQUE(crs_code, term_code, off_section)}</p>
+<h2>ENROLLMENT</h2>
+<p>ENROLLMENT (stu_num: integer, off_id: integer, enr_status: string, enr_final_grade: string)</p>
+<p>PK = {stu_num, off_id}</p>
+<p>FKs = {stu_num → STUDENT.stu_num, off_id → COURSE_OFFERING.off_id}<br>Constraints = {enr_status NOT NULL}</p>
+<h2>DEP_ROLE (Supertype)</h2>
+<p>DEP_ROLE (dep_code: string, role_title: string, role_type: string)</p>
+<p>PK = {dep_code, role_title}</p>
+<p>FKs = {dep_code → DEPARTMENT.dep_code}</p>
+<p>Constraints = {role_title NOT NULL}</p>
+<h3>Subtypes (Disjoint examples)</h3>
+<p>CHAIR (dep_code: string, role_title: string, chair_budget_authority_level: integer, chair_hiring_authority: boolean)</p>
+<p>PK = {dep_code, role_title}<br>FKs = {(dep_code, role_title) → DEP_ROLE(dep_code, role_title)}</p>
+<p>PROG_HEAD (dep_code: string, role_title: string, ph_release_time_pct: integer, ph_stipend: integer)</p>
+<p>PK = {dep_code, role_title}<br>FKs = {(dep_code, role_title) → DEP_ROLE(dep_code, role_title)}</p>
+<h2>ROLE_ASSIGNMENT (Time-variant history)</h2>
+<p>ROLE_ASSIGNMENT (prof_num: integer, dep_code: string, role_title: string, valid_from: date, valid_to: date)</p>
+<p>PK = {prof_num, dep_code, role_title, valid_from}</p>
+<p>FKs = {prof_num → PROFESSOR.prof_num, (dep_code, role_title) → DEP_ROLE(dep_code, role_title)}</p>
+<p>Constraints = {valid_from NOT NULL, CHECK(valid_to is NULL OR valid_to ≥ valid_from)}</p>
+<hr>
+<h2>Notes</h2>
+<ul>
+<li>
+<p><strong>Offerings &amp; teaching</strong>: modeled as one professor per offering via <code inline="">COURSE_OFFERING.prof_num</code>. If co‑teaching is required, replace that with a junction table (e.g., <code inline="">TEACH_ASSIGNMENT(prof_num, off_id)</code>).</p>
+</li>
+<li>
+<p><strong>Department office</strong>: <code inline="">DEPARTMENT.loc_code</code> assumes one office per department; make optional if needed.</p>
+</li>
+<li>
+<p><strong>Subtypes</strong>: Examples shown as <strong>disjoint</strong> subtypes. Add subtype discriminator checks if you decide to enforce them at the DBMS level later.</p>
+</li>
+</ul>
+<hr>
+<p><em>End of solution (conceptual types)</em></p></body></html>
